@@ -49,6 +49,9 @@ jobs:
             cd frontend
             npm install
             npm run build
+      - slack/notify:
+          event: failure
+          template: basic_fail_1
       - save_cache:
           paths: [frontend/node_modules]
           key: frontend-build
@@ -66,6 +69,9 @@ jobs:
             cd backend
             npm install
             npm run build
+      - slack/notify:
+          event: failure
+          template: basic_fail_1
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build
@@ -83,6 +89,9 @@ jobs:
             cd frontend
             npm install
             npm run test
+      - slack/notify:
+          event: failure
+          template: basic_fail_1
   test-backend:
     docker:
       - image: circleci/node:13.8.0
@@ -96,6 +105,9 @@ jobs:
             cd backend 
             npm install
             npm run test
+      - slack/notify:
+          event: failure
+          template: basic_fail_1
   scan-frontend:
     docker:
       - image: circleci/node:13.8.0
@@ -109,6 +121,9 @@ jobs:
             cd frontend
             npm install
             npm audit --audit-level=critical
+      - slack/notify:
+          event: failure
+          template: basic_fail_1
     
   scan-backend:
     docker:
@@ -123,6 +138,9 @@ jobs:
             cd backend
             npm install
             npm audit --audit-level=critical
+      - slack/notify:
+          event: failure
+          template: basic_fail_1
           
             #  deploy-infrastructure:
             #    docker:
@@ -294,15 +312,21 @@ workflows:
   default:
     jobs:
       - build-frontend
+          context: slack-secrets
       - build-backend
+          context: slack-secrets
       - test-frontend:
           requires: [build-frontend]
+          context: slack-secrets
       - test-backend:
           requires: [build-backend]
+          context: slack-secrets
       - scan-backend:
           requires: [build-backend]
+          context: slack-secrets
       - scan-frontend:
           requires: [build-frontend]
+          context: slack-secrets
         #- deploy-infrastructure:
         #    requires: [test-frontend, test-backend, scan-frontend, scan-backend]
         #    filters:
