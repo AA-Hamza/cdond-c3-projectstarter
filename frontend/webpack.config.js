@@ -63,7 +63,7 @@ module.exports = {
                 localIdentName: '[local]__[hash:base64:5]',
               },
             },
-            // query: {
+            // options: {
             //   modules: true,
             //   sourceMap: !isProduction,
             //   importLoaders: 1,
@@ -100,7 +100,7 @@ module.exports = {
           isProduction ? MiniCssExtractPlugin.loader : 'style-loader',
           {
             loader: 'css-loader',
-            query: {
+            options: {
               modules: false,
               sourceMap: !isProduction,
               importLoaders: 1,
