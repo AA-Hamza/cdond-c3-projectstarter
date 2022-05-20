@@ -185,10 +185,10 @@ jobs:
         - run:
             name: SSH or Git CLI client 
             command: |
-              apk add --update git openssh-client
+                apk add --update git openssh-client
         - checkout
         - add_ssh_keys:
-                fingerprints: ["10:c8:57:47:6e:23:83:0d:a2:b4:d9:eb:20:e8:41:37"] 
+            fingerprints: ["10:c8:57:47:6e:23:83:0d:a2:b4:d9:eb:20:e8:41:37"] 
 
         - attach_workspace:
             at: ~/
@@ -196,20 +196,20 @@ jobs:
         - run:
             name: Install dependencies
             command: |
-                  apk add --no-cache \
-                  python3 \
-                  py3-pip \
-                  && pip3 install --upgrade pip \
-                  && pip3 install \
-                  awscli \
-                  && rm -rf /var/cache/apk/*
-                  apk add --update ansible
+                apk add --no-cache \
+                python3 \
+                py3-pip \
+                && pip3 install --upgrade pip \
+                && pip3 install \
+                awscli \
+                && rm -rf /var/cache/apk/*
+                apk add --update ansible
         - run:
             name: Configure server
             command: |
-              cd .circleci/ansible/  
-              cat inventory.txt
-              ansible-playbook -i inventory.txt configure-server.yml
+                cd .circleci/ansible/  
+                cat inventory.txt
+                ansible-playbook -i inventory.txt configure-server.yml
             #  run-migrations:
             #    docker:
             #      # Docker image here that supports NodeJS
