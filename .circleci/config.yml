@@ -178,55 +178,65 @@ jobs:
             - project/.circleci/ansible/inventory.txt
       # Here's where you will add some code to rollback on failure      
             
-    configure-infrastructure:
-      docker:
-        - image: python:3.7-alpine3.11 
-      steps:
-        - run:
-            name: SSH or Git CLI client 
-            command: |
-                apk add --update git openssh-client
-        - checkout
-        - add_ssh_keys:
-            fingerprints: ["10:c8:57:47:6e:23:83:0d:a2:b4:d9:eb:20:e8:41:37"] 
+  configure-infrastructure:
+    docker:
+      - image: python:3.7-alpine3.11 
+    steps:
+      - checkout
+      - run:
+          name: SSH or Git CLI client 
+          command: |
+              apk add --update git openssh-client
+      - add_ssh_keys:
+          fingerprints: ["10:c8:57:47:6e:23:83:0d:a2:b4:d9:eb:20:e8:41:37"] 
 
-        - attach_workspace:
-            at: ~/
-           
-        - run:
-            name: Install dependencies
-            command: |
-                apk add --no-cache \
-                python3 \
-                py3-pip \
-                && pip3 install --upgrade pip \
-                && pip3 install \
-                awscli \
-                && rm -rf /var/cache/apk/*
-                apk add --update ansible
-        - run:
-            name: Configure server
-            command: |
-                cd .circleci/ansible/  
-                cat inventory.txt
-                ansible-playbook -i inventory.txt configure-server.yml
-            #  run-migrations:
-            #    docker:
-            #      # Docker image here that supports NodeJS
-            #    steps:
-            #      # Checkout code from git
-            #      - run:
-            #          name: Run migrations
-            #          command: |
-            #            # Your code here
-            #            exit 1
-            #      - run:
-            #          name: Send migration results to memstash
-            #          command: |
-            #            # Your code here
-            #            exit 1
-            #     # Here's where you will add some code to rollback on failure      
-            #
+      - attach_workspace:
+          at: ~/
+         
+      - run:
+          name: Install dependencies
+          command: |
+              apk add --no-cache \
+              python3 \
+              py3-pip \
+              && pip3 install --upgrade pip \
+              && pip3 install \
+              awscli \
+              && rm -rf /var/cache/apk/*
+              apk add --update ansible
+      - run:
+          name: Configure server
+          command: |
+              cd .circleci/ansible/  
+              cat inventory.txt
+              ansible-playbook -i inventory.txt configure-server.yml
+      - destroy-environment
+
+        #  run-migrations:
+        #    docker:
+        #      - image: circleci/node:13.8.0
+        #        user: root
+        #    steps:
+        #      - checkout
+        #      - run:
+        #          name: install aws cli
+        #          command: |
+        #            apt -y update
+        #            apt -y install awscli
+        #
+        #      - run:
+        #          name: Run migrations
+        #          command: |
+        #            cd backend
+        #            npm install
+        #            MIGRATIONS_RESULT=$(npm run migrations)
+        #      - run:
+        #          name: Send migration results to memstash
+        #          command: |
+        #            echo $MIGRATIONS_RESULT
+
+        # Here's where you will add some code to rollback on failure      
+      
             #  deploy-frontend:
             #    docker:
             #      # Docker image here that supports AWS CLI
