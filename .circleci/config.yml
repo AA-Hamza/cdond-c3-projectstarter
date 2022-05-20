@@ -191,7 +191,7 @@ jobs:
           fingerprints: ["10:c8:57:47:6e:23:83:0d:a2:b4:d9:eb:20:e8:41:37"] 
 
       - attach_workspace:
-          at: ~/
+          at: /tmp/.circleci/ansible
          
       - run:
           name: Install dependencies
@@ -237,46 +237,105 @@ jobs:
               then
                   curl https://kvdb.io/TzKNQZG86TWD5LmKYes24S/migration_${CIRCLE_WORKFLOW_ID:0:7} -d '1'
               fi
+      - destroy-environment
         # Here's where you will add some code to rollback on failure      
       
-            #  deploy-frontend:
-            #    docker:
-            #      # Docker image here that supports AWS CLI
-            #    steps:
-            #      # Checkout code from git
-            #      - run:
-            #          name: Install dependencies
-            #          command: |
-            #            # your code here
-            #      - run:
-            #          name: Get backend url
-            #          command: |
-            #            # your code here
-            #            export API_URL="http://${BACKEND_IP}:3030"
-            #            echo "${API_URL}"
-            #      - run:
-            #          name: Deploy frontend objects
-            #          command: |
-            #            # your code here
-            #      # Here's where you will add some code to rollback on failure      
-            #                    
-            #  deploy-backend:
-            #    docker:
-            #      # Docker image here that supports Ansible
-            #    steps:
-            #      # Checkout code from git
-            #      # Add ssh keys with fingerprint
-            #      # attach workspace
-            #      - run:
-            #          name: Install dependencies
-            #          command: |
-            #            # your code here
-            #      - run:
-            #          name: Deploy backend
-            #          command: |
-            #            # your code here
-            #      # Here's where you will add some code to rollback on failure  
-            #
+  deploy-frontend:
+    docker:
+      - image: python:3.7-alpine3.11
+    steps:
+      - checkout
+      - run:
+          name: SSH or Git CLI client 
+          command: |
+              apk add --update git openssh-client
+      - add_ssh_keys:
+          fingerprints: ["10:c8:57:47:6e:23:83:0d:a2:b4:d9:eb:20:e8:41:37"] 
+      - attach_workspace:
+          at: /tmp/.circleci/ansible
+      - restore_cache:
+          keys: [frontend-build]
+      - run:
+          name: Install dependencies
+          command: |
+              apk add --no-cache \
+              python3 \
+              py3-pip \
+              && pip3 install --upgrade pip \
+              && pip3 install \
+              awscli \
+              && rm -rf /var/cache/apk/*
+              apk add --update ansible
+              apk add --update curl
+              apk add --update nodejs
+              apk add --update npm
+              apk add --update tar                        
+              apk add --update gzip
+      - run:
+          name: Get backend url
+          command: |
+            export BACKEND_IP=$(aws ec2 describe-instances \
+            --query 'Reservations[*].Instances[*].PublicIpAddress' \
+            --filters "Name=tag:project,Values=udapeople" \
+            --output text)
+            export API_URL="http://${BACKEND_IP}:3030"
+            echo "API_URL = ${API_URL}"
+            echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
+            cat frontend/.env
+      - run:
+          name: Deploy frontend objects
+          command: |
+              cd frontend
+              npm install
+              npm run build
+              tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
+              aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
+      - destroy-environment
+  deploy-backend:
+    docker:
+      - image: python:3.7-alpine3.11
+    steps:
+      - checkout
+      - run:
+          name: SSH or Git CLI client 
+          command: |
+              apk add --update git openssh-client
+      - add_ssh_keys:
+          fingerprints: ["10:c8:57:47:6e:23:83:0d:a2:b4:d9:eb:20:e8:41:37"] 
+      - attach_workspace:
+          at: /tmp/.circleci/ansible
+      - restore_cache:
+          keys: [backend-build]
+      - run:
+          name: Install dependencies
+          command: |
+              apk add --no-cache \
+              python3 \
+              py3-pip \
+              && pip3 install --upgrade pip \
+              && pip3 install \
+              awscli \
+              && rm -rf /var/cache/apk/*
+              apk add --update ansible
+              apk add --update curl
+              apk add --update nodejs
+              apk add --update npm
+              apk add --update tar                        
+              apk add --update gzip
+          name: Deploy backend
+          command: |
+            cd /root/project/backend
+            npm i
+            npm run build
+            cd ..
+            tar -C backend -czvf artifact.tar.gz .
+            cd .circleci/ansible
+            echo "Contents  of the inventory.txt file is -------"
+            cat inventory.txt
+            ansible-playbook -i inventory.txt deploy-backend.yml
+      - destroy-environment
+      # Here's where you will add some code to rollback on failure  
+
             #  smoke-test:
             #    docker:
             #      # Lightweight Docker image 
