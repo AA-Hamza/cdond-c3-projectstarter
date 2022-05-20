@@ -322,6 +322,7 @@ jobs:
               apk add --update npm
               apk add --update tar                        
               apk add --update gzip
+      - run:
           name: Deploy backend
           command: |
               cd /root/project/backend
