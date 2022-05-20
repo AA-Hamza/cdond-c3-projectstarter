@@ -167,8 +167,10 @@ jobs:
       - run:
           name: Add back-end ip to ansible inventory
           command: |
-              PUBLIC_DNS=$(aws ec2 describe-instances --region ${AWS_DEFAULT_REGION} --filters 'Name=tag:Name,Values=udapeople-backend-ec2-*' --query "Reservations[*].Instances[0].PublicDnsName" --output text)
-              echo $PUBLIC_DNS >> project/.circleci/ansible/inventory.txt
+              echo [web] > .circleci/ansible/inventory.txt
+
+              aws ec2 describe-instances --region ${AWS_DEFAULT_REGION} --filters 'Name=tag:Name,Values=udapeople-backend-ec2-*' --query "Reservations[*].Instances[*].PublicDnsName" --output text >> .circleci/ansible/inventory.txt 
+              cat .circleci/ansible/inventory.txt 
 
       - persist_to_workspace:
           root: ~/
@@ -176,25 +178,38 @@ jobs:
             - project/.circleci/ansible/inventory.txt
       # Here's where you will add some code to rollback on failure      
             
-            #  configure-infrastructure:
-            #    docker:
-            #      # Docker image here that supports Ansible
-            #    steps:
-            #      # Checkout code from git
-            #      # Add ssh keys with fingerprint
-            #      # attach workspace
-            #      - run:
-            #          name: Install dependencies
-            #          command: |
-            #            # Your code here
-            #            exit 1
-            #      - run:
-            #          name: Configure server
-            #          command: |
-            #            # Your code here
-            #            exit 1
-            #      # Here's where you will add some code to rollback on failure      
-            #
+    configure-infrastructure:
+      docker:
+        - image: python:3.7-alpine3.11 
+      steps:
+        - run:
+            name: SSH or Git CLI client 
+            command: |
+              apk add --update git openssh-client
+        - checkout
+        - add_ssh_keys:
+                fingerprints: ["10:c8:57:47:6e:23:83:0d:a2:b4:d9:eb:20:e8:41:37"] 
+
+        - attach_workspace:
+            at: ~/
+           
+        - run:
+            name: Install dependencies
+            command: |
+                  apk add --no-cache \
+                  python3 \
+                  py3-pip \
+                  && pip3 install --upgrade pip \
+                  && pip3 install \
+                  awscli \
+                  && rm -rf /var/cache/apk/*
+                  apk add --update ansible
+        - run:
+            name: Configure server
+            command: |
+              cd .circleci/ansible/  
+              cat inventory.txt
+              ansible-playbook -i inventory.txt configure-server.yml
             #  run-migrations:
             #    docker:
             #      # Docker image here that supports NodeJS
