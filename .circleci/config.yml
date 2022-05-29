@@ -189,7 +189,7 @@ jobs:
           command: |
               apk add --update git openssh-client
       - add_ssh_keys:
-          fingerprints: ["10:c8:57:47:6e:23:83:0d:a2:b4:d9:eb:20:e8:41:37"] 
+          fingerprints: ["0c:88:d5:d9:05:32:b6:da:27:09:cf:37:6d:ff:30:dc"] 
 
       - attach_workspace:
           at: /tmp/.circleci/ansible
@@ -251,7 +251,7 @@ jobs:
           command: |
               apk add --update git openssh-client
       - add_ssh_keys:
-          fingerprints: ["10:c8:57:47:6e:23:83:0d:a2:b4:d9:eb:20:e8:41:37"] 
+          fingerprints: ["0c:88:d5:d9:05:32:b6:da:27:09:cf:37:6d:ff:30:dc"] 
       - attach_workspace:
           at: /tmp/.circleci/ansible
       - restore_cache:
@@ -304,7 +304,7 @@ jobs:
           command: |
               apk add --update git openssh-client
       - add_ssh_keys:
-          fingerprints: ["10:c8:57:47:6e:23:83:0d:a2:b4:d9:eb:20:e8:41:37"] 
+          fingerprints: ["0c:88:d5:d9:05:32:b6:da:27:09:cf:37:6d:ff:30:dc"] 
       - attach_workspace:
           at: /tmp/.circleci/ansible
       - restore_cache:
