@@ -356,6 +356,7 @@ jobs:
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --filters "Name=tag:project,Values=udapeople" \
               --output text)
+              echo "BACKEND IP = ${BACKEND_IP}"
       - run:
           name: Backend smoke test.
           command: |
