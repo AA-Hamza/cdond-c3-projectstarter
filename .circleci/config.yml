@@ -170,7 +170,7 @@ jobs:
           command: |
               echo [web] > .circleci/ansible/inventory.txt
 
-              aws ec2 describe-instances --region ${AWS_DEFAULT_REGION} --filters 'Name=tag:Name,Values=backend-*' --query "Reservations[*].Instances[*].PublicDnsName" --output text >> .circleci/ansible/inventory.txt 
+              aws ec2 describe-instances --region ${AWS_DEFAULT_REGION} --filters 'Name=tag:Name,Values=backend-*' --query "Reservations[*].Instances[*].PublicDnsName" --output text | grep ec2 >> .circleci/ansible/inventory.txt 
               cat .circleci/ansible/inventory.txt 
 
       - persist_to_workspace:
