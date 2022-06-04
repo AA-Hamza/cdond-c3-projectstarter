@@ -210,7 +210,7 @@ jobs:
           command: |
               cd .circleci/ansible/  
               cat inventory.txt
-              ansible-playbook -i inventory.txt configure-server.yml
+              ansible-playbook -i /tmp/.circleci/ansible/inventory.txt configure-server.yml
       - destroy-environment
 
   run-migrations:
@@ -330,13 +330,42 @@ jobs:
           command: |
               cd /root/project/backend
               npm i
+
+              echo ENVIROMENT=development > ".env"
+              echo TYPEORM_CONNECTION=postgres >> ".env"
+              echo TYPEORM_MIGRATIONS_DIR=./src/migrations >> ".env"
+              echo TYPEORM_ENTITIES=./src/modules/domain/**/*.entity.ts >> ".env"
+              echo TYPEORM_MIGRATIONS=./src/migrations/*.ts >> ".env"
+              echo TYPEORM_HOST=$TYPEORM_HOST >> ".env"
+              echo TYPEORM_PORT=$TYPEORM_PORT >> ".env"
+              echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> ".env"
+              echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> ".env"
+              echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> ".env"
+
               npm run build
-              cd ..
+              npm run prestart:prod
+
+      - run:
+          name: zip file
+          command: |
+              cd /root/project/
               tar -C backend -czvf artifact.tar.gz .
+              mv artifact.tar.gz ~/projects/.circleci/ansible/roles/deploy/files/
+
+      - run:
+          name: ansible configs
+          command: |
+              cd .circleci/ansible
+              echo "[ssh_connection]" > ansible.cfg
+              echo "scp_if_ssh=True" >> ansible.cfg
+
+      - run:
+          name: run ansible
+          command: |
               cd .circleci/ansible
               echo "Contents  of the inventory.txt file is -------"
-              cat inventory.txt
-              ansible-playbook -i inventory.txt deploy-backend.yml
+              cat /tmp/.circleci/ansible/inventory.txt
+              ansible-playbook -i /tmp/.circleci/ansible/inventory.txt deploy-backend.yml
       - destroy-environment
       - revert-migrations
 
