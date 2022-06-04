@@ -349,7 +349,7 @@ jobs:
           name: zip file
           command: |
               cd /root/project/
-              tar -C backend -czvf artifact.tar.gz .
+              tar -czvf artifact.tar.gz backend/
               mv artifact.tar.gz ~/projects/.circleci/ansible/roles/deploy/files/
 
       - run:
