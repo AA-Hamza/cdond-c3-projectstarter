@@ -386,6 +386,19 @@ jobs:
               echo "BACKEND IP = ${BACKEND_IP}"
               export API_URL="http://${BACKEND_IP}:3030"
               echo "API_URL = ${API_URL}"
+              TRIES=5
+              curl "${API_URL}/api/status"
+              while [ "$?" = "7"]
+              do
+                  echo "Trying again"
+                  curl "${API_URL}/api/status"
+                  TRIES=$(( $TRIES - 1 ))
+                  if [ $TRIES -eq 0 ]
+                  then
+                      exit 1
+                  fi
+              done
+
               if curl "${API_URL}/api/status" | grep "ok"
               then
                   exit 0
