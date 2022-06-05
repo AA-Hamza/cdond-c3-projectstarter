@@ -460,8 +460,8 @@ cleanup:
             if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
             then
               aws s3 rb s3://udapeople-${OldWorkflowID} --force
-              aws cloudformation delete-stack --stack-name front-prod-${OldWorkflowID}
-              aws cloudformation delete-stack --stack-name back-prod-${OldWorkflowID}
+              aws cloudformation delete-stack --stack-name udapeople-frontend--${OldWorkflowID}
+              aws cloudformation delete-stack --stack-name udapeople-backend--${OldWorkflowID}
             fi
             
 
@@ -495,5 +495,5 @@ workflows:
           requires: [deploy-backend, deploy-frontend]
       - cloudfront-update:
           requires: [smoke-test]
-        #- cleanup:
-        #    requires: [cloudfront-update]
+      - cleanup:
+          requires: [cloudfront-update]
