@@ -387,11 +387,14 @@ jobs:
               export API_URL="http://${BACKEND_IP}:3030"
               echo "API_URL = ${API_URL}"
               TRIES=5
-              curl "${API_URL}/api/status"
-              while [ "$?" = "7"]
+              FAILED=0
+              curl "${API_URL}/api/status" || FAILED=1
+              while [ $FAILED -eq 1 ]
               do
+                  FAILED=0
                   echo "Trying again"
-                  curl "${API_URL}/api/status"
+                  sleep 1
+                  curl "${API_URL}/api/status" || FAILED=1
                   TRIES=$(( $TRIES - 1 ))
                   if [ $TRIES -eq 0 ]
                   then
