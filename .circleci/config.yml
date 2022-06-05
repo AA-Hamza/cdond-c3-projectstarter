@@ -351,7 +351,7 @@ jobs:
               cd /root/project/
               tar -zcvf udapeople_backend.tar.gz backend/
               ls .
-              cp udapeople_backend.tar.gz ~/project/.circleci/ansible/roles/deploy/files/ 
+              mv udapeople_backend.tar.gz .circleci/ansible/roles/deploy/files/ 
 
       - run:
           name: ansible configs
