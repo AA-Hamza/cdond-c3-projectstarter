@@ -326,7 +326,7 @@ jobs:
               apk add --update tar                        
               apk add --update gzip
       - run:
-          name: Deploy backend
+          name: build backend
           command: |
               cd /root/project/backend
               npm i
@@ -350,6 +350,7 @@ jobs:
           command: |
               cd /root/project/
               tar -czvf artifact.tar.gz backend/
+              ls .
               mv artifact.tar.gz ~/projects/.circleci/ansible/roles/deploy/files/
 
       - run:
