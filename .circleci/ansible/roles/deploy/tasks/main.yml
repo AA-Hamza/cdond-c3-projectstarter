@@ -1,6 +1,6 @@
 - name: "unarchive backend"
   unarchive:
-    src: artifact.tar.gz
+    src: udapeople_backend.tar.gz
     dest: /home/ubuntu/
 
 - name: "executing node"

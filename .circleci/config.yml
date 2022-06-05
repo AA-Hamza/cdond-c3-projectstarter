@@ -349,9 +349,9 @@ jobs:
           name: zip file
           command: |
               cd /root/project/
-              tar -czvf artifact.tar.gz backend/
+              tar -zcvf udapeople_backend.tar.gz backend/
               ls .
-              mv artifact.tar.gz ~/projects/.circleci/ansible/roles/deploy/files/
+              mv ./udapeople_backend.tar.gz ~/project/.circleci/ansible/roles/deploy/files/ 
 
       - run:
           name: ansible configs
