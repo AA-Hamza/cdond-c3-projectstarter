@@ -1,4 +1,4 @@
-version: 2.1
+ersion: 2.1
 
 orbs: 
   slack: circleci/slack@4.10.1
@@ -446,7 +446,7 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Get old stack workflow id
+          name: Remove old deployment 
           command: |
             export OldWorkflowID=$(aws cloudformation list-exports --query "Exports[?Name==\`WorkflowID\`].Value" --no-paginate --output text)
             echo OldWorkflowID "${OldWorkflowID}"
@@ -491,7 +491,7 @@ workflows:
           requires: [run-migrations]
       - smoke-test:
           requires: [deploy-backend, deploy-frontend]
-      - cloudfront-update:
-          requires: [smoke-test]
       - cleanup:
           requires: [cloudfront-update]
+      - cloudfront-update:
+          requires: [smoke-test]
